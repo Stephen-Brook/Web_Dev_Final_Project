@@ -9,6 +9,9 @@ import { Theme } from '@primeuix/styled';
       <h1 class="justify-content-center">
         Weather App
       </h1>
+      <div class="justify-content-end">
+        <ThemeSwitcher />
+      </div>
     </div>
 
   </div>

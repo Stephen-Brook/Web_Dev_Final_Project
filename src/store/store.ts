@@ -19,5 +19,8 @@ export const useStore = defineStore("store", () => {
   return {
     //state
     isDark,
+
+    //actions
+    toggleTheme,
   };
 });

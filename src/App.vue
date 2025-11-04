@@ -14,6 +14,14 @@ import { Theme } from '@primeuix/styled';
       </div>
     </div>
 
+    <div class="flex m-6 justify-content-center">
+      <LocationSelector />
+    </div>
+
+    <div class="flex m-6 justify-content-center">
+      <WeatherCard />
+    </div>
+
   </div>
 </template>
 

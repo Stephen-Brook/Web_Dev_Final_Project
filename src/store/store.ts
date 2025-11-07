@@ -13,12 +13,16 @@ export const useStore = defineStore("store", () => {
     },
     { immediate : true }
   );
+
+  const latitude = ref<number | null>(null);
+  const longitude = ref<number | null>(null);
+
   // Actions
   function toggleTheme() {
     isDark.value = !isDark.value;
   }
 
-   function setSelectedLocation(location: string) {
+  function setSelectedLocation(location: string) {
     selectedLocation.value = location;
   }
 
@@ -41,6 +45,11 @@ export const useStore = defineStore("store", () => {
     }
     selectedLocation.value = place;
   }
+
+  function setCoordinates(lat: number, lon: number) {
+    latitude.value = lat;
+    longitude.value = lon;
+  }
   // Getters
 
   return {
@@ -48,9 +57,13 @@ export const useStore = defineStore("store", () => {
     isDark,
     recentlyVisited,
     selectedLocation,
+    latitude,
+    longitude,
 
     //actions
     toggleTheme,
-    addNewPlace
+    addNewPlace,
+    setSelectedLocation,
+    setCoordinates,
   };
 });

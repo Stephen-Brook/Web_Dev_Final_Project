@@ -22,4 +22,6 @@ import { useStore } from '@/store/store';
 const store = useStore()
 const { selectedLocation, latitude, longitude } = storeToRefs(store);
 
+const { error: geoError, isFetching: geoLoading } = useTranslateLocation();
+
 </script>

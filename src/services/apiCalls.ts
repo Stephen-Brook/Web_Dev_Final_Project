@@ -44,3 +44,101 @@ export function useTranslateLocation() {
     error: request.error,
   };
 }
+
+export function useCurrentWeather() {
+  const store = useStore();
+  const { latitude, longitude } = storeToRefs(store);
+
+  const url = computed(() => {
+    if (latitude.value == null || longitude.value == null) {
+      return null;
+    }
+    return `https://api.openweathermap.org/data/2.5/weather?lat=${latitude.value}&lon=${longitude.value}&units=imperial&appid=${API_KEY}`;
+  });
+
+  const request = useFetch(url, {
+    refetch: true,
+    immediate: true,
+  })
+    .get()
+    .json<any>();
+
+  request.onFetchError((context) => {
+    const name = context.error?.name ?? "";
+    // I was having some errors that even if the api call went through successfully it thought we aborted it
+    // this is basically just clearing and ignoring those errors
+    if (name === "AbortError") {
+      // clear the stored error so the ui won't display it
+      request.error.value = null;
+      // also return so we dont do any other error handling
+    }
+  });
+
+  request.onFetchResponse((response) => {
+    if (!response.ok) return;
+    const snapshot = { lat: latitude.value, lon: longitude.value };
+    const data = request.data.value;
+    if (
+      data &&
+      latitude.value === snapshot.lat &&
+      longitude.value === snapshot.lon
+    ) {
+      store.currentWeather = data;
+      // clear any old error on success
+      request.error.value = null;
+    }
+  });
+
+  return {
+    isFetching: request.isFetching,
+    error: request.error,
+  };
+}
+
+export function useFiveDayThreeHour() {
+  const store = useStore();
+  const { latitude, longitude } = storeToRefs(store);
+
+  const url = computed(() => {
+    if (latitude.value == null || longitude.value == null) return null;
+    return `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude.value}&lon=${longitude.value}&units=imperial&appid=${API_KEY}`;
+  });
+
+  const request = useFetch(url, {
+    refetch: true,
+    immediate: true,
+  })
+    .get()
+    .json<any>();
+
+  // I was having some errors that even if the api call went through successfully it thought we aborted it
+  // this is basically just clearing and ignoring those errors
+  request.onFetchError((context) => {
+    const error: any = context.error as any;
+    const name = error?.name ?? "";
+    if (name === "AbortError") {
+      request.error.value = null;
+    }
+  });
+
+  request.onFetchResponse((response) => {
+    if (!response.ok) return;
+    const snapshot = { lat: latitude.value, lon: longitude.value };
+    const data = request.data.value;
+
+    if (
+      data &&
+      latitude.value === snapshot.lat &&
+      longitude.value === snapshot.lon
+    ) {
+      store.dayHourWeather = data;
+      // clear any old error on success
+      request.error.value = null;
+    }
+  });
+
+  return {
+    isFetching: request.isFetching,
+    error: request.error,
+  };
+}

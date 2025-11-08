@@ -17,6 +17,10 @@ export const useStore = defineStore("store", () => {
   const latitude = ref<number | null>(null);
   const longitude = ref<number | null>(null);
 
+  const currentWeather = ref<any>(null);
+
+  const dayHourWeather = ref<any>(null);
+
   // Actions
   function toggleTheme() {
     isDark.value = !isDark.value;
@@ -59,6 +63,8 @@ export const useStore = defineStore("store", () => {
     selectedLocation,
     latitude,
     longitude,
+    currentWeather,
+    dayHourWeather,
 
     //actions
     toggleTheme,

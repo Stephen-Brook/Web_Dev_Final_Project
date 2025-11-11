@@ -33,7 +33,21 @@
                 v-else
                 class="flex-auto flex gap-2 align-content-between"
               >
-              {{ currentWeather }}
+                <Card class="flex-auto flex m-2 px-5 border-solid">
+                  <template #content>
+                    <CurrentTemp />
+                  </template>
+                </Card>
+                <Card class="flex-auto flex m-2 px-5 border-solid">
+                  <template #content>
+                    <CurrentWind />
+                  </template>
+                </Card>
+                <Card class="flex-auto flex m-2 px-5 border-solid">
+                  <template #content>
+                    <SunInformation />
+                  </template>
+                </Card>
               </div>
             </TabPanel>
 
@@ -61,7 +75,7 @@
 import { useStore } from '@/store/store';
 
 const store = useStore()
-const { selectedLocation, latitude, longitude, currentWeather, dayHourWeather } = storeToRefs(store);
+const { selectedLocation, latitude, longitude, dayHourWeather } = storeToRefs(store);
 
 const { error: geoError, isFetching: geoLoading } = useTranslateLocation();
 

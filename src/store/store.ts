@@ -19,6 +19,10 @@ export const useStore = defineStore("store", () => {
 
   const currentWeather = ref<any>(null);
 
+  const icon = computed<string | null>(
+    () => currentWeather.value?.weather[0]?.icon ?? null
+  );
+
   const dayHourWeather = ref<any>(null);
 
   // Actions
@@ -64,6 +68,7 @@ export const useStore = defineStore("store", () => {
     latitude,
     longitude,
     currentWeather,
+    icon,
     dayHourWeather,
 
     //actions

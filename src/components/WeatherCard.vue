@@ -13,7 +13,7 @@
         <p>Could not translate location. Try another city.</p>
       </div>
       <div class="flex">
-        <Tabs value="0">
+        <Tabs v-model:value="activeTab">
           <TabList>
             <Tab value="0"> Current </Tab>
             <Tab value="1"> 5 Day / 3 Hour </Tab>
@@ -53,16 +53,14 @@
 
             <!-- 5 Day / 3 Hour -->
             <TabPanel value="1">
-                <div v-if="dayHourWeatherLoading">
-                  <h4>Loading day hour weather</h4>
+              <div class="flex gap-4 align-items-start">
+                <ForecastTable />
+                <div v-if="activeTab === '1'">
+                  <div v-if="selectedForecastRow">
+                    <EditRow />
+                  </div>
                 </div>
-                <div v-else-if="dayHourWeatherError">
-                  <h4>Couldn't load day hour weather</h4>
-                  <p>{{ dayHourWeatherError }}</p>
-                </div>
-                <div v-else>
-                  <p>{{ dayHourWeather }}</p>
-                </div>
+              </div>
             </TabPanel>
           </TabPanels>
         </Tabs>
@@ -72,16 +70,14 @@
 </template>
 
 <script setup lang="ts">
-import { useStore } from '@/store/store';
+import { useStore } from "@/store/store";
 
-const store = useStore()
-const { selectedLocation, latitude, longitude, dayHourWeather } = storeToRefs(store);
+const activeTab = ref("0");
+
+const store = useStore();
+const { selectedLocation, latitude, longitude, selectedForecastRow } = storeToRefs(store);
 
 const { error: geoError, isFetching: geoLoading } = useTranslateLocation();
 
-const { isFetching: currentWeatherLoading, error: currentWeatherError } =
-  useCurrentWeather();
-
-const { isFetching: dayHourWeatherLoading, error: dayHourWeatherError } =
-  useFiveDayThreeHour();
+const { isFetching: currentWeatherLoading, error: currentWeatherError } = useCurrentWeather();
 </script>

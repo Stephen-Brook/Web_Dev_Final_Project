@@ -8,7 +8,7 @@
         :key="place"
         :label="place"
         :outlined="selectedLocation !== place"
-        @click="selectedLocation = place"
+        @click="handleNewSelection(place)"
       />
       <!-- use v-model to bind the input to selected location from the store -->
       <FormKit
@@ -36,5 +36,10 @@
 import { useStore } from "@/store/store";
 
 const store = useStore();
-const { recentlyVisited, selectedLocation } = storeToRefs(store);
+const { recentlyVisited, selectedLocation, selectedForecastRow } = storeToRefs(store);
+
+function handleNewSelection(place) {
+  selectedForecastRow.value = null;
+  selectedLocation.value = place;
+}
 </script>

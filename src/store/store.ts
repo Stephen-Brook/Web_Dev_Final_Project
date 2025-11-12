@@ -1,3 +1,11 @@
+import {
+  TableRow,
+  DayGroup,
+  shiftedDate,
+  dayDateFromShifted,
+  toDatetimeLocal,
+} from "@/Utility/utils.js";
+
 export const useStore = defineStore("store", () => {
   // State  
   const recentlyVisited = ref(new Set(["Denver", "Bozeman", "Telluride"]));
@@ -24,6 +32,83 @@ export const useStore = defineStore("store", () => {
   );
 
   const dayHourWeather = ref<any>(null);
+
+  const selectedForecastRow = ref<TableRow | null>(null);
+
+  const editRowsMap = reactive(new Map<string, { row: TableRow }>());
+
+  const timeFormat = new Intl.DateTimeFormat(undefined, {
+    timeZone: "UTC",
+    weekday: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  const dayLabelFormat = new Intl.DateTimeFormat(undefined, {
+    timeZone: "UTC",
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+
+  const forecastCols = [
+    { field: "dateString", header: "UTC Time" },
+    { field: "temp", header: "Temperature °F" },
+    { field: "feelsLike", header: "Feels Like °F" },
+    { field: "conditions", header: "Conditions" },
+    { field: "humidity", header: "Humidity %" },
+  ];
+
+  //derive forecastRows and groupedDays
+  const rawForecastRows = computed<TableRow[]>(() => {
+    const list = dayHourWeather.value?.list ?? [];
+    const tzOffset = dayHourWeather.value?.city?.timezone ?? 0; // seconds
+
+    return list.map((entry: any) => {
+      const shifted = shiftedDate(entry.dt, tzOffset);
+      const dayKey = dayDateFromShifted(shifted);
+      const time = timeFormat.format(shifted);
+      return {
+        id: `${dayKey}_${time}`,
+        dayKey,
+        temp: Math.round(entry.main?.temp),
+        feelsLike: Math.round(entry.main?.feels_like),
+        conditions: entry.weather?.[0]?.description ?? "",
+        humidity: entry.main?.humidity,
+        dateString: toDatetimeLocal(shifted),
+      };
+    });
+  });
+
+  const forecastRows = computed<TableRow[]>(() => {
+    return rawForecastRows.value.map((base) => {
+      const edited = editRowsMap.get(base.id)?.row;
+      return edited ?? base;
+    });
+  });
+
+  const days = computed<DayGroup[]>(() => {
+    //group rows by YYYY-MM-DD
+    const map = new Map<string, TableRow[]>();
+    for (const row of forecastRows.value) {
+      if (!map.has(row.dayKey)) map.set(row.dayKey, []);
+      map.get(row.dayKey)!.push(row);
+    }
+
+    //sort keys chronologically for YYYY-MM-DD
+    const sortedKeys = Array.from(map.keys()).sort();
+
+    return sortedKeys.map((key) => {
+      const [y, m, d] = key.split("-").map(Number);
+      const representativeDate = new Date(Date.UTC(y, (m ?? 1) - 1, d ?? 1));
+      return {
+        key,
+        label: dayLabelFormat.format(representativeDate),
+        rows: map.get(key)!,
+      };
+    });
+  });
+
 
   // Actions
   function toggleTheme() {
@@ -52,6 +137,7 @@ export const useStore = defineStore("store", () => {
       recentlyVisited.value.delete(oldestPlace);
     }
     selectedLocation.value = place;
+    selectedForecastRow.value = null;
   }
 
   function setCoordinates(lat: number, lon: number) {
@@ -70,6 +156,12 @@ export const useStore = defineStore("store", () => {
     currentWeather,
     icon,
     dayHourWeather,
+    selectedForecastRow,
+
+    //derived
+    forecastCols,
+    forecastRows,
+    days,
 
     //actions
     toggleTheme,

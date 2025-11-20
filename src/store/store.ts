@@ -144,6 +144,27 @@ export const useStore = defineStore("store", () => {
     latitude.value = lat;
     longitude.value = lon;
   }
+
+  function editForecastRow(
+    id: string,
+    dayKey: string,
+    temp: number,
+    feelsLike: number,
+    conditions: string,
+    humidity: number,
+    dateString: string
+  ): void {
+    const newRow: TableRow = {
+      id: id,
+      dayKey: dayKey,
+      temp: temp,
+      feelsLike: feelsLike,
+      conditions: conditions,
+      humidity: humidity,
+      dateString: dateString,
+    };
+    editRowsMap.set(id, { row: newRow });
+  }
   // Getters
 
   return {
@@ -168,5 +189,6 @@ export const useStore = defineStore("store", () => {
     addNewPlace,
     setSelectedLocation,
     setCoordinates,
+    editForecastRow,
   };
 });
